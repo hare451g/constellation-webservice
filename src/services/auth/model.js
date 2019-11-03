@@ -2,7 +2,7 @@ const mongoose = require('../../utils/mongoose');
 
 const authSchema = new mongoose.Schema(
   {
-    address: {
+    account_number: {
       type: String,
       required: true,
       unique: true
@@ -10,6 +10,12 @@ const authSchema = new mongoose.Schema(
 
     pin: {
       type: String,
+      required: true
+    },
+
+    userprofile: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'userprofile',
       required: true
     }
   },
@@ -21,6 +27,6 @@ const authSchema = new mongoose.Schema(
   }
 );
 
-const AuthModel = mongoose.model('users', authSchema);
+const AuthModel = mongoose.model('auth', authSchema);
 
 module.exports = AuthModel;

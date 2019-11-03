@@ -6,29 +6,36 @@ const jwt = require('jsonwebtoken');
 const AuthModel = require('./model');
 
 async function initializeAuth(req, res) {
-  const { address, pin } = req.body;
+  const { user_id, account_number, pin } = req.body;
 
   try {
-    const encryptedPin = await bcrypt.hash(pin, 4);
+    const encryptedPin = await bcrypt.hash(`${pin}`, 4);
 
-    const newAuth = new AuthModel({ address, pin: encryptedPin });
+    const newAuth = new AuthModel({
+      account_number,
+      pin: encryptedPin,
+      userprofile: user_id
+    });
 
     const saved = await newAuth.save();
 
     res.status(200).json({ data: saved });
   } catch (error) {
+    console.log(error);
     res.status(500).json(error);
   }
 }
 
 async function obtainToken(req, res) {
   try {
-    const { address, pin } = req.body;
+    const { account_number, pin } = req.body;
 
-    const user = await AuthModel.findOne({ address });
+    const user = await AuthModel.findOne({ account_number }).populate(
+      'userprofile'
+    );
 
     if (!user) {
-      res.status(403).json({ messages: 'user not found' });
+      throw { messages: 'user not found' };
     }
 
     // compare hash
@@ -40,21 +47,34 @@ async function obtainToken(req, res) {
 
       res.status(200).json({
         id: user.id,
-        address: user.address,
+        account_number: user.account_number,
         authorization: token,
         type: 'JWT'
       });
     } else {
       res.status(403).json({
-        messages: 'address and pin did not match'
+        messages: 'account_number and pin did not match'
       });
     }
   } catch (error) {
-    res.status(500).json({ messages: 'error when comparing hash' });
+    res.status(400).json(error);
+  }
+}
+
+async function deleteAuth(req, res) {
+  try {
+    const id = req.params.id;
+
+    const deleted = await AuthModel.findByIdAndDelete(id);
+
+    res.status(200).json(deleted);
+  } catch (error) {
+    res.status(422).json({ messsage: 'malformed request', error });
   }
 }
 
 module.exports = {
   initializeAuth,
-  obtainToken
+  obtainToken,
+  deleteAuth
 };

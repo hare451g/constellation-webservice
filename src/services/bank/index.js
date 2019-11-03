@@ -5,6 +5,7 @@ const {
   createNewBank,
   fetchAllBanks,
   fetchOneBank,
+  fetchOneBankByCode,
   updateBank,
   deleteBank
 } = require('./functions');
@@ -12,6 +13,7 @@ const {
 // define the home page route
 router.post('/', createNewBank);
 router.get('/', fetchAllBanks);
+router.get('/code/:code', fetchOneBankByCode);
 router.get('/:id', fetchOneBank);
 router.put('/:id', updateBank);
 router.delete('/:id', deleteBank);
