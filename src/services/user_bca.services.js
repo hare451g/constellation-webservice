@@ -1,6 +1,6 @@
-const userBcaModel = require('../model/user_bca.model')
-const status = require('../utils/constants')
-const moment = require('moment')
+const userBcaModel = require('../model/user_bca.model');
+const status = require('../utils/constants');
+const moment = require('moment');
 
 const createNewUser = (req, res) => {
   try {
@@ -9,98 +9,99 @@ const createNewUser = (req, res) => {
       pin: req.body.pin,
       account_number: req.body.account_number,
       created_at: moment(),
-      updated_at: moment(),
-    }
+      updated_at: moment()
+    };
 
-    const query = new userBcaModel(newUser)
+    const query = new userBcaModel(newUser);
 
     query.save((err, query) => {
       if (err) {
-        res.status(status.HTTP_STATUS.ERROR).json(err)
+        res.status(status.HTTP_STATUS.ERROR).json(err);
       }
-      res.status(status.HTTP_STATUS.SUCCESS).json(query)
-    })
+      res.status(status.HTTP_STATUS.SUCCESS).json(query);
+    });
   } catch (error) {
     res
       .status(status.HTTP_STATUS.ERROR)
-      .json({ messsage: 'malformed request', error: `${error}` })
+      .json({ messsage: 'malformed request', error: `${error}` });
   }
-}
+};
 
 const fetchAllUser = (req, res) => {
   userBcaModel.find((err, result) => {
     if (err) {
-      res.status(status.HTTP_STATUS.ERROR).json(err)
+      res.status(status.HTTP_STATUS.ERROR).json(err);
     }
     if (result === null) {
-      res.status(status.HTTP_STATUS.SUCCESS).json()
+      res.status(status.HTTP_STATUS.SUCCESS).json();
     }
-    res.status(status.HTTP_STATUS.SUCCESS).json(result)
-  })
-}
+    res.status(status.HTTP_STATUS.SUCCESS).json(result);
+  });
+};
 
 const fetchOneUser = (req, res) => {
-  const id = req.params.id
+  const id = req.params.id;
   userBcaModel.findById(id, (err, result) => {
     if (err) {
-      res.status(status.HTTP_STATUS.ERROR).json(err)
+      res.status(status.HTTP_STATUS.ERROR).json(err);
     }
     if (result === null) {
       res
         .status(status.HTTP_STATUS.NOT_FOUND)
-        .json({ message: 'not found', id })
+        .json({ message: 'not found', id });
     }
-    res.status(status.HTTP_STATUS.SUCCESS).json(result)
-  })
-}
+    res.status(status.HTTP_STATUS.SUCCESS).json(result);
+  });
+};
 
 const updateUser = (req, res) => {
   try {
-    const id = req.params.id
+    const id = req.params.id;
     userBcaModel.findById(id, (err, result) => {
       if (err) {
         res
           .status(status.HTTP_STATUS.NOT_FOUND)
-          .json({ message: 'Not found !' })
+          .json({ message: 'Not found !' });
       }
       if (req.body.username != null) {
-        result.username = req.body.username || result.name
+        result.username = req.body.username || result.name;
       }
       if (req.body.pin != null) {
-        result.name = req.body.username || result.name
+        result.name = req.body.username || result.name;
       }
       if (req.body.account_number != null) {
-        result.account_number = req.body.account_number || result.account_number
+        result.account_number =
+          req.body.account_number || result.account_number;
       }
-      ;(result.updated_at = moment()),
+      (result.updated_at = moment()),
         result.save((err, updated) => {
           if (err) {
-            res.status(status.HTTP_STATUS.ERROR).json(err)
+            res.status(status.HTTP_STATUS.ERROR).json(err);
           }
-          res.status(status.HTTP_STATUS.SUCCESS).json(updated)
-        })
-    })
+          res.status(status.HTTP_STATUS.SUCCESS).json(updated);
+        });
+    });
   } catch (error) {
     res
       .status(status.HTTP_STATUS.ERROR)
-      .json({ messsage: 'malformed request', error: `${error}` })
+      .json({ messsage: 'malformed request', error: `${error}` });
   }
-}
+};
 
 const deleteUser = (req, res) => {
-  const id = req.params.id
+  const id = req.params.id;
   userBcaModel.findByIdAndDelete(id, (err, result) => {
     if (err) {
-      res.status(status.HTTP_STATUS.ERROR).json(err)
+      res.status(status.HTTP_STATUS.ERROR).json(err);
     }
-    res.status(status.HTTP_STATUS.SUCCESS).json(result)
-  })
-}
+    res.status(status.HTTP_STATUS.SUCCESS).json(result);
+  });
+};
 
 module.exports = {
   createNewUser,
   fetchAllUser,
   fetchOneUser,
   updateUser,
-  deleteUser,
-}
+  deleteUser
+};
