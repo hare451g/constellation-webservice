@@ -5,7 +5,6 @@ const cors = require('cors');
 const mandiriServices = require('./services/mandiri');
 const bankService = require('./services/bank');
 const bcaService = require('./services/bca');
-const bankService = require('./services/bank');
 
 const authService = require('./services/auth');
 const userprofileService = require('./services/userprofile');
