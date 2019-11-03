@@ -4,19 +4,19 @@ const axios = require('axios');
 const { BASE_API_URL } = require('../../constants/api');
 
 const status = require('../../utils/constants');
-const createResponse = require('../../utils/createResponse');
 
 const UserProfileModel = require('./model');
 
 async function createNewProfile(req, res) {
   try {
-    const { account_number, bank_code } = req.body;
+    const { account_number, bank_code, pin } = req.body;
 
     // get bank by bank code
     const response = await axios.get(`${BASE_API_URL}/banks/code/${bank_code}`);
     if (!response.data) {
       throw { messsage: 'invalid bank code' };
     }
+
     const query = new UserProfileModel({
       account_number,
       bank: response.data._id
@@ -25,11 +25,22 @@ async function createNewProfile(req, res) {
     const saved = await query.save();
 
     if (saved) {
-      res.status(status.HTTP_STATUS.SUCCESS).json(saved);
+      const authResponse = await axios.post(`${BASE_API_URL}/auth/initialize`, {
+        account_number,
+        user_id: saved._id,
+        pin
+      });
+
+      if (authResponse.data) {
+        res.status(status.HTTP_STATUS.SUCCESS).json(saved);
+      } else {
+        throw { messsage: 'error when initialize auth' };
+      }
     } else {
       throw { messsage: 'error when creating userprofile' };
     }
   } catch (error) {
+    console.log(error);
     res.status(status.HTTP_STATUS.ERROR).json(error);
   }
 }
@@ -81,9 +92,8 @@ async function deleteProfile(req, res) {
     const id = req.params.id;
 
     const deleted = await UserProfileModel.findByIdAndDelete(id);
-    if (deleted) {
-      res.status(status.HTTP_STATUS.ERROR).json(deleted);
-    }
+
+    res.status(status.HTTP_STATUS.SUCCESS).json(deleted);
   } catch (error) {
     res
       .status(status.HTTP_STATUS.ERROR)

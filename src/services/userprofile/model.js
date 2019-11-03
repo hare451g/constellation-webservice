@@ -6,7 +6,15 @@ const userProfileSchema = new mongoose.Schema(
     address: { type: String, unique: true },
     bank: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'banks'
+      ref: 'bank'
+    },
+    is_activated: {
+      type: Boolean,
+      required: true,
+      default: false
+    },
+    active_at: {
+      type: Date
     }
   },
   {
@@ -17,6 +25,6 @@ const userProfileSchema = new mongoose.Schema(
   }
 );
 
-const UserProfileModel = mongoose.model('user_profiles', userProfileSchema);
+const UserProfileModel = mongoose.model('userprofile', userProfileSchema);
 
 module.exports = UserProfileModel;
