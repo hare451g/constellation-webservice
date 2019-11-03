@@ -7,7 +7,7 @@ const {
   fetchOneBank,
   updateBank,
   deleteBank
-} = require('../services/bankServices');
+} = require('./functions');
 
 // define the home page route
 router.post('/', createNewBank);

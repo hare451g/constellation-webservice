@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const userBcaRoutes = require('./routes/user_bca.routes');
 const userMandiriRoutes = require('./routes/user_mandiri.routes');
+const bankService = require('./services/bank');
 
 const authService = require('./services/auth');
 
@@ -19,6 +20,7 @@ app.use(bodyParser.json());
 
 app.use('/user_bca', userBcaRoutes);
 app.use('/user_mandiri', userMandiriRoutes);
+app.use('/banks', bankService);
 
 app.use('/auth', authService);
 
