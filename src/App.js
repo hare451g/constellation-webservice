@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const userBcaRoutes = require('./routes/user_bca.routes');
 const userMandiriRoutes = require('./routes/user_mandiri.routes');
+const bankService = require('./services/bank');
 
 const cors = require('cors');
 
@@ -15,5 +16,6 @@ app.use(bodyParser.json());
 // use todo router
 app.use('/user_bca', userBcaRoutes);
 app.use('/user_mandiri', userMandiriRoutes);
+app.use('/banks', bankService);
 
 module.exports = app;
