@@ -57,6 +57,22 @@ async function fetchOneBank(req, res) {
   }
 }
 
+async function fetchOneBankByCode(req, res) {
+  try {
+    const code = req.params.code;
+
+    const bank = await bankModel.findOne({ code });
+
+    if (bank) {
+      res.status(status.HTTP_STATUS.SUCCESS).json(bank);
+    } else {
+      res.status(status.HTTP_STATUS.NOT_FOUND).json(bank);
+    }
+  } catch (err) {
+    res.status(status.HTTP_STATUS.ERROR).json(err);
+  }
+}
+
 async function updateBank(req, res) {
   try {
     const id = req.params.id;
@@ -99,6 +115,7 @@ module.exports = {
   createNewBank,
   fetchAllBanks,
   fetchOneBank,
+  fetchOneBankByCode,
   updateBank,
   deleteBank
 };
