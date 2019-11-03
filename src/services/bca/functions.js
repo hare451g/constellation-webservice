@@ -1,8 +1,9 @@
-const userMandiriModel = require('../model/user_mandiri.model');
-const status = require('../utils/constants');
 const moment = require('moment');
 
-const createNewUser = (req, res) => {
+const UserBCAModel = require('./model');
+const status = require('../../utils/constants');
+
+async function createNewUser(req, res) {
   try {
     const newUser = {
       username: req.body.username,
@@ -12,7 +13,7 @@ const createNewUser = (req, res) => {
       updated_at: moment()
     };
 
-    const query = new userMandiriModel(newUser);
+    const query = new UserBCAModel(newUser);
 
     query.save((err, query) => {
       if (err) {
@@ -25,23 +26,23 @@ const createNewUser = (req, res) => {
       .status(status.HTTP_STATUS.ERROR)
       .json({ messsage: 'malformed request', error: `${error}` });
   }
-};
+}
 
-const fetchAllUser = (req, res) => {
-  userMandiriModel.find((err, result) => {
-    if (err) {
-      res.status(status.HTTP_STATUS.ERROR).json(err);
-    }
-    if (result === null) {
+async function fetchAllUser(req, res) {
+  try {
+    const users = await UserBCAModel.find();
+    if (users === null) {
       res.status(status.HTTP_STATUS.SUCCESS).json();
     }
-    res.status(status.HTTP_STATUS.SUCCESS).json(result);
-  });
-};
+    res.status(status.HTTP_STATUS.SUCCESS).json(users);
+  } catch (error) {
+    res.status(status.HTTP_STATUS.ERROR).json(error);
+  }
+}
 
-const fetchOneUser = (req, res) => {
+async function fetchOneUser(req, res) {
   const id = req.params.id;
-  userMandiriModel.findById(id, (err, result) => {
+  UserBCAModel.findById(id, (err, result) => {
     if (err) {
       res.status(status.HTTP_STATUS.ERROR).json(err);
     }
@@ -52,12 +53,12 @@ const fetchOneUser = (req, res) => {
     }
     res.status(status.HTTP_STATUS.SUCCESS).json(result);
   });
-};
+}
 
-const updateUser = (req, res) => {
+async function updateUser(req, res) {
   try {
     const id = req.params.id;
-    userMandiriModel.findById(id, (err, result) => {
+    UserBCAModel.findById(id, (err, result) => {
       if (err) {
         res
           .status(status.HTTP_STATUS.NOT_FOUND)
@@ -86,17 +87,17 @@ const updateUser = (req, res) => {
       .status(status.HTTP_STATUS.ERROR)
       .json({ messsage: 'malformed request', error: `${error}` });
   }
-};
+}
 
-const deleteUser = (req, res) => {
+async function deleteUser(req, res) {
   const id = req.params.id;
-  userMandiriModel.findByIdAndDelete(id, (err, result) => {
+  UserBCAModel.findByIdAndDelete(id, (err, result) => {
     if (err) {
       res.status(status.HTTP_STATUS.ERROR).json(err);
     }
     res.status(status.HTTP_STATUS.SUCCESS).json(result);
   });
-};
+}
 
 module.exports = {
   createNewUser,

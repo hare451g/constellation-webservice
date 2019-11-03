@@ -1,6 +1,7 @@
-const userBcaModel = require('../model/user_bca.model');
-const status = require('../utils/constants');
 const moment = require('moment');
+
+const status = require('../../utils/constants');
+const userMandiriModel = require('./model');
 
 const createNewUser = (req, res) => {
   try {
@@ -12,7 +13,7 @@ const createNewUser = (req, res) => {
       updated_at: moment()
     };
 
-    const query = new userBcaModel(newUser);
+    const query = new userMandiriModel(newUser);
 
     query.save((err, query) => {
       if (err) {
@@ -28,7 +29,7 @@ const createNewUser = (req, res) => {
 };
 
 const fetchAllUser = (req, res) => {
-  userBcaModel.find((err, result) => {
+  userMandiriModel.find((err, result) => {
     if (err) {
       res.status(status.HTTP_STATUS.ERROR).json(err);
     }
@@ -41,7 +42,7 @@ const fetchAllUser = (req, res) => {
 
 const fetchOneUser = (req, res) => {
   const id = req.params.id;
-  userBcaModel.findById(id, (err, result) => {
+  userMandiriModel.findById(id, (err, result) => {
     if (err) {
       res.status(status.HTTP_STATUS.ERROR).json(err);
     }
@@ -57,7 +58,7 @@ const fetchOneUser = (req, res) => {
 const updateUser = (req, res) => {
   try {
     const id = req.params.id;
-    userBcaModel.findById(id, (err, result) => {
+    userMandiriModel.findById(id, (err, result) => {
       if (err) {
         res
           .status(status.HTTP_STATUS.NOT_FOUND)
@@ -90,7 +91,7 @@ const updateUser = (req, res) => {
 
 const deleteUser = (req, res) => {
   const id = req.params.id;
-  userBcaModel.findByIdAndDelete(id, (err, result) => {
+  userMandiriModel.findByIdAndDelete(id, (err, result) => {
     if (err) {
       res.status(status.HTTP_STATUS.ERROR).json(err);
     }
