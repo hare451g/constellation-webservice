@@ -1,0 +1,31 @@
+{
+  "name": "learning-express-mongoose",
+  "version": "1.0.0",
+  "description": "learning express and mongodb, with creating rest API to do CRUD operation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./index.js"
+  },
+  "keywords": [
+    "mongodb",
+    "express",
+    "node",
+    "js",
+    "javascript"
+  ],
+  "author": "hendra 'hare' sadewa",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "moment": "^2.22.2",
+    "mongoose": "^5.3.1",
+    "validator": "^12.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.4"
+  }
+}
