@@ -1,6 +1,7 @@
-const userMandiriModel = require('../model/user_mandiri.model');
-const status = require('../utils/constants');
 const moment = require('moment');
+
+const status = require('../../utils/constants');
+const userMandiriModel = require('./model');
 
 const createNewUser = (req, res) => {
   try {

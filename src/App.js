@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const userMandiriRoutes = require('./routes/user_mandiri.routes');
+const mandiriServices = require('./services/mandiri');
 const bankService = require('./services/bank');
 const bcaService = require('./services/bca');
 const authService = require('./services/auth');
@@ -17,7 +17,7 @@ app.options('*', cors());
 // tell express to use body parser
 app.use(bodyParser.json());
 
-app.use('/user_mandiri', userMandiriRoutes);
+app.use('/user_mandiri', mandiriServices);
 
 app.use('/bca', bcaService);
 app.use('/banks', bankService);
