@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // import todo services from services
-const UserBcaServices = require('../services/user_bca.services');
+const UserBcaServices = require('./functions');
 
 // define the home page route
 router.post('/', UserBcaServices.createNewUser);
