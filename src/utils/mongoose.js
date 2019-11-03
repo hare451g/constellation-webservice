@@ -1,9 +1,17 @@
 require('dotenv').config();
-
-const url =
-  'mongodb+srv://auth_service:56OnoO7AD9iI5zmk@cluster0-ky5wb.mongodb.net/test?retryWrites=true&w=majority';
-
 const mongoose = require('mongoose');
+
+const {
+  DATABASE_USER,
+  DATABASE_PASSWORD,
+  DATABASE_NAME,
+  DATABASE_CLUSTER
+} = process.env;
+
+const host = `${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_CLUSTER}`;
+const options = 'retryWrites=true&w=majority';
+const url = `mongodb+srv://${host}/${DATABASE_NAME}?${options}`;
+
 mongoose.connect(url, {
   useCreateIndex: true,
   useNewUrlParser: true,

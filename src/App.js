@@ -18,8 +18,7 @@ app.options('*', cors());
 app.use(bodyParser.json());
 
 app.use('/user_mandiri', mandiriServices);
-
-app.use('/bca', bcaService);
+app.use('/user_bca', bcaService);
 app.use('/banks', bankService);
 app.use('/auth', authService);
 

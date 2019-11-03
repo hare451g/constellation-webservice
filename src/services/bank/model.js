@@ -1,4 +1,4 @@
-const mongoose = require('../../utils/configs');
+const mongoose = require('../../utils/mongoose');
 
 const bankSchema = new mongoose.Schema(
   {

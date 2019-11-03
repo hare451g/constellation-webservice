@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // import todo services from services
-const UserMandiriServices = require('../services/user_mandiri.services');
+const UserMandiriServices = require('./functions');
 
 // define the home page route
 router.post('/', UserMandiriServices.createNewUser);
