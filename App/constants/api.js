@@ -1,9 +1,12 @@
 require('dotenv').config();
 
-const HOST = process.env.SERVER_HOST;
-const PORT = process.env.SERVER_PORT;
+const { HOST, PORT } = process.env;
 
-const BASE_API_URL = `http://${HOST}:${PORT}`;
+let BASE_API_URL = `http://${HOST}:${PORT}`;
+
+if (process.env.ENVIRONMENT === 'production') {
+  BASE_API_URL = HOST;
+}
 
 module.exports = {
   HOST,

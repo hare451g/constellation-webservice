@@ -25,8 +25,8 @@
    DATABASE_HOST=<databse_name>
    DATABASE_PORT=<database_port>
 
-   SERVER_HOST=<server_hostname>
-   SERVER_PORT=<server_port>
+   HOST=<server_hostname>
+   PORT=<server_port>
 
    JWT_SECRET=<super_secret_string>
    ```
