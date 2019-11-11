@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const jwt = require('jsonwebtoken');
 
-const checkToken = (req, res, next) => {
+const checkToken = async (req, res, next) => {
   const authorization = req.headers['authorization'] || '';
 
   if (authorization.startsWith('JWT ')) {
@@ -15,9 +15,9 @@ const checkToken = (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (decoded) {
-      req.user = decoded.user;
+    const userprofile = await AuthToken.findOne({_id:decoded._id})
+    if (userprofile) {
+      req.userprofile = userprofile;
       next();
     }
   } else {

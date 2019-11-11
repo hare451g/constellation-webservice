@@ -9,19 +9,28 @@ const UserProfileModel = require('./model');
 
 async function createNewProfile(req, res) {
   try {
-    const { account_number, bank_code, pin } = req.body;
-
+    const { account_number, address, bank_code, pin } = req.body;
+    
+    // get account by account number
+    const account_response = await axios.get(`${BASE_API_URL}/accounts/account_number/${account_number}`);
+    if (!account_response.data) {
+      throw { message: 'invalid account number'}
+    }
     // get bank by bank code
-    const response = await axios.get(`${BASE_API_URL}/banks/code/${bank_code}`);
-    if (!response.data) {
-      throw { messsage: 'invalid bank code' };
+    const bank_response = await axios.get(`${BASE_API_URL}/banks/code/${bank_code}`);
+    if (!bank_response.data) {
+      throw { message: 'invalid bank code' };
     }
 
     const query = new UserProfileModel({
-      account_number,
-      bank: response.data._id
+      account: account_response.data._id,
+      address,
+      bank: bank_response.data._id,
+      pin
     });
 
+    console.log(account_response)
+    console.log(bank_response)
     const saved = await query.save();
 
     if (saved) {
@@ -31,6 +40,7 @@ async function createNewProfile(req, res) {
         pin
       });
 
+      console.log(authResponse)
       if (authResponse.data) {
         res.status(status.HTTP_STATUS.SUCCESS).json(saved);
       } else {
@@ -47,7 +57,7 @@ async function createNewProfile(req, res) {
 
 async function fetchAllProfiles(req, res) {
   try {
-    const userprofile = await UserProfileModel.find().populate('bank');
+    const userprofile = await UserProfileModel.find().populate('account').populate('bank');
     res.status(status.HTTP_STATUS.SUCCESS).json({
       list: userprofile
     });

@@ -7,12 +7,10 @@ const authSchema = new mongoose.Schema(
       required: true,
       unique: true
     },
-
     pin: {
       type: String,
       required: true
     },
-
     userprofile: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'userprofile',
