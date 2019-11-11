@@ -6,7 +6,7 @@ const checkToken = (req, res, next) => {
   const authorization = req.headers['authorization'] || '';
 
   if (authorization.startsWith('JWT ')) {
-    const token = authorization.slice(7, authorization.length);
+    const token = authorization.slice(4, authorization.length);
 
     if (!token) {
       res.status(403).json({
