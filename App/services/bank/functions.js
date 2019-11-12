@@ -17,9 +17,7 @@ async function createNewBank(req, res) {
     const saved = await query.save();
 
     if (saved) {
-      res
-        .status(status.HTTP_STATUS.SUCCESS)
-        .json(createResponse('object', saved));
+      res.status(status.HTTP_STATUS.SUCCESS).json(saved);
     }
   } catch (error) {
     res

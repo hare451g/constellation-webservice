@@ -1,4 +1,5 @@
 require('dotenv').config();
+const Web3 = require('web3');
 
 const { BLOCKCHAIN_NET } = process.env;
 

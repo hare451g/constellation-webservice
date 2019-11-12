@@ -2,8 +2,16 @@ const mongoose = require('../../utils/mongoose');
 
 const userProfileSchema = new mongoose.Schema(
   {
-    account_number: { type: String, required: true, trim: true, unique: true },
-    address: { type: String, unique: true },
+    account_number: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true
+    },
+    address: {
+      type: String,
+      unique: true
+    },
     bank: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'bank'
@@ -15,6 +23,10 @@ const userProfileSchema = new mongoose.Schema(
     },
     active_at: {
       type: Date
+    },
+    pin: {
+      type: String,
+      required: true
     }
   },
   {

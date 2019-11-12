@@ -1,18 +1,25 @@
 const wallet = require('generated-wallet');
 const axios = require('axios').default;
 
-const ABIs = require('../../constants/abi');
-const Address = require('../../constants/addresses');
-const web3 = require('../../constants/web3');
+const ABIs = require('../constants/abi');
+const Address = require('../constants/addresses');
+const web3 = require('../constants/web3');
 
 function getContractInstance(contractName, address) {
   const abi = ABIs[contractName];
   return new web3.eth.Contract(abi, address);
 }
 
+async function createSeed(bankCode, accountNumber, hashedPin) {
+  return await web3.utils.keccak256(
+    web3.utils.keccak256(bankCode) +
+      web3.utils.keccak256(accountNumber) +
+      web3.utils.keccak256(hashedPin)
+  );
+}
+
 async function getAddress(seed) {
-  const callback = await wallet(seed);
-  return await callback.getAddress();
+  return await wallet(seed).getAddress();
 }
 
 async function transact(contractName, fn, params, seed) {
@@ -25,7 +32,6 @@ async function transact(contractName, fn, params, seed) {
   const addrWallet = wallet(seed);
 
   const count = await web3.eth.getTransactionCount(fromAddress, 'pending');
-
   let data = await walletContract.methods[fn](...params).encodeABI();
 
   let tempTx = {
@@ -57,9 +63,11 @@ async function activation(bankCode, bankAccount, hashedPIN) {
   const seed = web3.utils.keccak256(
     web3.utils.keccak256(bankCode) +
       web3.utils.keccak256(bankAccount) +
-      hashedPIN
+      web3.utils.keccak256(hashedPIN)
   );
+
   const hashedAccount = web3.utils.keccak256(bankCode + bankAccount);
+
   const result = await transact(
     'CentralWallet',
     'newAccount',
@@ -165,6 +173,7 @@ async function addAsset(bankCode, amount, seed) {
 }
 
 module.exports = {
+  createSeed,
   getContractInstance,
   getAddress,
   transact,

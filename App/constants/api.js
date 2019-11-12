@@ -1,10 +1,10 @@
 require('dotenv').config();
 
-const { HOST, PORT } = process.env;
+const { HOST, PORT, ENVIRONMENT } = process.env;
 
-let BASE_API_URL = `http://${HOST}:${PORT}`;
+let BASE_API_URL = `${HOST}:${PORT}`;
 
-if (process.env.ENVIRONMENT === 'production') {
+if (ENVIRONMENT === 'production') {
   BASE_API_URL = HOST;
 }
 
