@@ -3,13 +3,15 @@ require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const status = require('../../utils/constants');
+
 const AuthModel = require('./model');
 
 async function initializeAuth(req, res) {
-  const { user_id, account_number, pin } = req.body;
+  const { account_number, pin, user_id } = req.body;
 
   try {
-    const encryptedPin = await bcrypt.hash(`${pin}`, 4);
+    const encryptedPin = await bcrypt.hash(`${pin}`, 8);
 
     const newAuth = new AuthModel({
       account_number,
@@ -30,24 +32,21 @@ async function obtainToken(req, res) {
   try {
     const { account_number, pin } = req.body;
 
-    const user = await AuthModel.findOne({ account_number }).populate(
-      'userprofile'
-    );
-
-    if (!user) {
+    const userprofile = await AuthModel.findOne({ account_number });
+    if (!userprofile) {
       throw { messages: 'user not found' };
     }
 
     // compare hash
-    const match = await bcrypt.compare(pin, user.pin);
+    const match = await bcrypt.compare(pin, userprofile.pin);
 
     if (match) {
       // generate json web token
-      const token = jwt.sign({ user }, process.env.JWT_SECRET);
+      const token = jwt.sign({ userprofile }, process.env.JWT_SECRET);
 
       res.status(200).json({
-        id: user.id,
-        account_number: user.account_number,
+        id: userprofile._id,
+        account_number: userprofile.account_number,
         authorization: token,
         type: 'JWT'
       });
@@ -73,8 +72,20 @@ async function deleteAuth(req, res) {
   }
 }
 
+async function findAllAuth(req, res) {
+  try {
+    const auth = await AuthModel.find().populate('userprofile')
+    res.status(status.HTTP_STATUS.SUCCESS).json({
+      list: auth
+    });
+  } catch (error) {
+    res.status(status.HTTP_STATUS.ERROR).json(error);
+  }
+}
+
 module.exports = {
   initializeAuth,
   obtainToken,
-  deleteAuth
+  deleteAuth,
+  findAllAuth
 };
