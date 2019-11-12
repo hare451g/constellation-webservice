@@ -28,7 +28,9 @@ async function transact(contractName, fn, params, seed) {
     Address[contractName]
   );
 
-  const fromAddress = web3.utils.toChecksumAddress(await getAddress(seed));
+  const address = await getAddress(seed);
+
+  const fromAddress = web3.utils.toChecksumAddress(address);
   const addrWallet = wallet(seed);
 
   const count = await web3.eth.getTransactionCount(fromAddress, 'pending');
@@ -60,11 +62,7 @@ async function transact(contractName, fn, params, seed) {
 }
 
 async function activation(bankCode, bankAccount, hashedPIN) {
-  const seed = web3.utils.keccak256(
-    web3.utils.keccak256(bankCode) +
-      web3.utils.keccak256(bankAccount) +
-      web3.utils.keccak256(hashedPIN)
-  );
+  const seed = await createSeed(bankCode, bankAccount, hashedPIN);
 
   const hashedAccount = web3.utils.keccak256(bankCode + bankAccount);
 
@@ -96,11 +94,7 @@ async function transferSameCurrency(
     bankCodeFrom + bankAccountFrom
   );
 
-  const seed = web3.utils.keccak256(
-    web3.utils.keccak256(bankCodeFrom) +
-      web3.utils.keccak256(bankAccountFrom) +
-      hashedPIN
-  );
+  const seed = await createSeed(bankCodeFrom, bankAccountFrom, hashedPIN);
 
   const result = await transact(
     'Interbank',
@@ -143,11 +137,7 @@ async function transferDiffCurrency(
     bankCodeFrom + bankAccountFrom
   );
 
-  const seed = web3.utils.keccak256(
-    web3.utils.keccak256(bankCodeFrom) +
-      web3.utils.keccak256(bankAccountFrom) +
-      hashedPIN
-  );
+  const seed = await createSeed(bankCodeFrom, bankAccountFrom, hashedPIN);
 
   const result = await transact(
     'Interbank',

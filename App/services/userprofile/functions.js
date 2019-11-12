@@ -72,7 +72,7 @@ async function createNewProfile(req, res) {
       }
     });
   } catch (error) {
-    res.status(status.HTTP_STATUS.ERROR).json(error);
+    res.status(400).json(error);
   }
 }
 

@@ -9,6 +9,8 @@ const bcaService = require('./services/bca');
 const authService = require('./services/auth');
 const userprofileService = require('./services/userprofile');
 
+const transactionsService = require('./services/transactions');
+
 // initialize express app
 const app = express();
 
@@ -24,5 +26,6 @@ app.use('/user_bca', bcaService);
 app.use('/banks', bankService);
 app.use('/auth', authService);
 app.use('/user-profile', userprofileService);
+app.use('/transaction', transactionsService);
 
 module.exports = app;
