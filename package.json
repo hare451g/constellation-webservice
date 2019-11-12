@@ -1,6 +1,9 @@
 {
   "name": "constellation-webservice",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "engines": {
+    "node": "10.15.2"
+  },
   "description": "webservice for constellation",
   "main": "index.js",
   "author": "hendra 'hare' sadewa",
