@@ -2,21 +2,20 @@ const mongoose = require('../../utils/mongoose');
 
 const userProfileSchema = new mongoose.Schema(
   {
-    account: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'account'
+    account_number: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true
     },
-    address: { type: String },
+    address: {
+      type: String,
+      unique: true
+    },
     bank: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'bank'
     },
-    transactions: [{
-      transaction: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'transaction'
-      }
-    }],
     is_activated: {
       type: Boolean,
       required: true,
@@ -24,6 +23,10 @@ const userProfileSchema = new mongoose.Schema(
     },
     active_at: {
       type: Date
+    },
+    pin: {
+      type: String,
+      required: true
     }
   },
   {

@@ -1,63 +1,117 @@
 const moment = require('moment');
-const axios = require('axios');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-const { BASE_API_URL } = require('../../constants/api');
+// models
+const BankModels = require('../bank/model');
+const UserProfileModel = require('./model');
 
+// constants
 const status = require('../../utils/constants');
 
-const UserProfileModel = require('./model');
+// utils
+const crud = require('../../utils/crud');
+const blockchain = require('../../utils/blockchain');
 
 async function createNewProfile(req, res) {
   try {
-    const { account_number, address, bank_code, pin } = req.body;
-    
-    // get account by account number
-    const account_response = await axios.get(`${BASE_API_URL}/accounts/account_number/${account_number}`);
-    if (!account_response.data) {
-      throw { message: 'invalid account number'}
-    }
+    const {
+      account_number: accountNumber,
+      bank_code: bankCode,
+      pin
+    } = req.body;
+
     // get bank by bank code
-    const bank_response = await axios.get(`${BASE_API_URL}/banks/code/${bank_code}`);
-    if (!bank_response.data) {
-      throw { message: 'invalid bank code' };
+    const bank = await crud.getDocument(BankModels, { code: bankCode });
+
+    if (!bank) {
+      throw { messsage: 'invalid bank code' };
     }
 
+    // encrypt pin
+    const encryptedPin = await bcrypt.hash(`${pin}`, 4);
+
+    // get generated address from web3
+    const seed = await blockchain.createSeed(
+      bankCode,
+      accountNumber,
+      encryptedPin
+    );
+
+    const address = await blockchain.getAddress(seed);
+
+    if (!address) {
+      throw { messsage: 'could not create address !' };
+    }
+
+    // activate account
+    const activation = await blockchain.activation(
+      bankCode,
+      accountNumber,
+      encryptedPin
+    );
+
+    if (!activation) {
+      throw { messsage: 'could not activate address !' };
+    }
+
+    // create new userprofile
     const query = new UserProfileModel({
-      account: account_response.data._id,
-      address,
-      bank: bank_response.data._id,
-      pin
+      account_number: accountNumber,
+      bank: bank._id,
+      pin: encryptedPin,
+      address
     });
 
-    console.log(account_response)
-    console.log(bank_response)
+    // perform save query
     const saved = await query.save();
 
-    if (saved) {
-      const authResponse = await axios.post(`${BASE_API_URL}/auth/initialize`, {
-        account_number,
-        user_id: saved._id,
-        pin
-      });
-
-      console.log(authResponse)
-      if (authResponse.data) {
-        res.status(status.HTTP_STATUS.SUCCESS).json(saved);
-      } else {
-        throw { messsage: 'error when initialize auth' };
+    res.status(201).json({
+      data: {
+        userprofile: saved
       }
+    });
+  } catch (error) {
+    res.status(400).json(error);
+  }
+}
+
+async function obtainToken(req, res) {
+  try {
+    const { account_number: accountNumber, pin } = req.body;
+
+    const user = await crud.getDocument(UserProfileModel, {
+      account_number: accountNumber
+    });
+
+    if (!user) {
+      throw { messages: 'user not found' };
+    }
+
+    // compare hash
+    const match = await bcrypt.compare(pin, user.pin);
+
+    if (match) {
+      // generate json web token
+      const token = jwt.sign({ user }, process.env.JWT_SECRET);
+
+      res.status(200).json({
+        id: user.id,
+        authorization: `JWT ${token}`
+      });
     } else {
-      throw { messsage: 'error when creating userprofile' };
+      res.status(403).json({
+        messages: 'account_number and pin did not match'
+      });
     }
   } catch (error) {
-    console.log(error);
-    res.status(status.HTTP_STATUS.ERROR).json(error);
+    res.status(422).json(error);
   }
 }
 
 async function fetchAllProfiles(req, res) {
   try {
-    const userprofile = await UserProfileModel.find().populate('account').populate('bank');
+    const userprofile = await UserProfileModel.find().populate('bank');
     res.status(status.HTTP_STATUS.SUCCESS).json({
       list: userprofile
     });
@@ -113,6 +167,7 @@ async function deleteProfile(req, res) {
 
 module.exports = {
   createNewProfile,
+  obtainToken,
   fetchAllProfiles,
   fetchOneProfile,
   updateProfile,

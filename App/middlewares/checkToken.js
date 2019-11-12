@@ -2,29 +2,38 @@ require('dotenv').config();
 
 const jwt = require('jsonwebtoken');
 
-const checkToken = async (req, res, next) => {
-  const authorization = req.headers['authorization'] || '';
+const UserProfileModel = require('../services/userprofile/model');
 
-  if (authorization.startsWith('JWT ')) {
+async function checkToken(req, res, next) {
+  try {
+    const authorization = req.headers['authorization'] || '';
+
+    if (!authorization.startsWith('JWT ')) {
+      throw { message: 'authorization token is required' };
+    }
     const token = authorization.slice(4, authorization.length);
 
     if (!token) {
-      res.status(403).json({
-        messages: 'Forbidden access'
-      });
+      throw { message: 'Forbidden access' };
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userprofile = await AuthToken.findOne({_id:decoded._id})
-    if (userprofile) {
-      req.userprofile = userprofile;
-      next();
+
+    if (!decoded) {
+      throw { message: 'invalid token!' };
     }
-  } else {
-    res.status(403).json({
-      messages: 'Authorization token is must be provided'
-    });
+
+    const user = await UserProfileModel.findById(decoded.user._id);
+    if (!user) {
+      throw { message: 'invalid user!' };
+    }
+
+    req.user = decoded.user;
+
+    next();
+  } catch (error) {
+    res.status(403).json(error);
   }
-};
+}
 
 module.exports = checkToken;
