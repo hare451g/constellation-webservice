@@ -1,11 +1,12 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const checkToken = require('../../middlewares/checkToken');
+const checkToken = require("../../middlewares/checkToken");
 
 // import todo services from services
-const { createNewTransaction } = require('./functions');
+const { getAll, createNewTransaction } = require("./functions");
 
 // public routes
-router.post('/', checkToken, createNewTransaction);
+router.get("/", checkToken, getAll);
+router.post("/", checkToken, createNewTransaction);
 
 module.exports = router;

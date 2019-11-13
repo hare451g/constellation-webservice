@@ -1,14 +1,40 @@
-const moment = require('moment');
-const bcrypt = require('bcrypt');
-
+const moment = require("moment");
+const bcrypt = require("bcrypt");
+const Web3 = require("web3");
+const web3 = new Web3(
+  "https://rinkeby.infura.io/v3/a32a968e178041e3ad9c70f54be32557"
+);
 // models
-const BankModels = require('../bank/model');
-const UserProfileModel = require('../userprofile/model');
-const TxModel = require('./model');
+const BankModels = require("../bank/model");
+const UserProfileModel = require("../userprofile/model");
+const TxModel = require("./model");
 
 // utils
-const crud = require('../../utils/crud');
-const blockchain = require('../../utils/blockchain');
+const crud = require("../../utils/crud");
+const blockchain = require("../../utils/contracts");
+
+async function getAll(req, res) {
+  try {
+    const { _id: userId } = req.user;
+
+    const selectedUser = await UserProfileModel.findById(userId).populate(
+      "bank"
+    );
+
+    if (!selectedUser) {
+      throw { message: "Could not find from User!" };
+    }
+
+    const txList = await TxModel.find({ from: userId }).populate([
+      { path: "from", populate: { path: "bank" } },
+      { path: "to", populate: { path: "bank" } }
+    ]);
+
+    res.status(200).json({ list: txList });
+  } catch (error) {
+    res.status(400).json(error);
+  }
+}
 
 async function createNewTransaction(req, res) {
   try {
@@ -17,54 +43,50 @@ async function createNewTransaction(req, res) {
 
     const targetUser = await UserProfileModel.findById(to);
     if (!targetUser) {
-      throw { message: 'Could not find target User!' };
+      throw { message: "Could not find target User!" };
     }
 
-    const fromUser = await UserProfileModel.findById(from).populate('bank');
+    const fromUser = await UserProfileModel.findById(from).populate("bank");
     if (!fromUser) {
-      throw { message: 'Could not find from User!' };
+      throw { message: "Could not find from User!" };
     }
-
-    const seed = await blockchain.createSeed(
-      fromUser.bank.code,
-      fromUser.account_number,
-      fromUser.pin
-    );
 
     const tx = new TxModel({ amount, from, to });
     const savedTx = await tx.save();
 
     if (!savedTx) {
-      throw { message: 'Could not save tx! ' };
+      throw { message: "Could not save tx! " };
     }
 
     const selectedTx = await TxModel.findById(savedTx.id).populate([
-      { path: 'from', populate: { path: 'bank' } },
-      { path: 'to', populate: { path: 'bank' } }
+      { path: "from", populate: { path: "bank" } },
+      { path: "to", populate: { path: "bank" } }
     ]);
 
     if (!selectedTx) {
-      throw { message: 'Could not select Tx! ' };
+      throw { message: "Could not select Tx! " };
     }
 
-    const performedTx = await blockchain.transferSameCurrency(
-      selectedTx.from.bank.code,
-      selectedTx.from.account_number,
-      selectedTx.from.pin,
-      amount,
-      selectedTx.to.bank.code,
-      selectedTx.to.account_number
-    );
-
-    if (!performedTx) {
-      throw { message: 'Failed to perform transactions!' };
-    }
-
-    res.status(201).json({ performedTx });
+    blockchain
+      .transferSameCurrency(
+        "testBank-idr",
+        "124987382999",
+        web3.utils.keccak256("iniPIN"),
+        1,
+        "testBankA-idr",
+        "124987382999"
+      )
+      .then(response => {
+        res.status(201).json(response);
+      })
+      .catch(error => {
+        console.log(error);
+        res.status(400).json(error);
+      });
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
   }
 }
 
-module.exports = { createNewTransaction };
+module.exports = { getAll, createNewTransaction };
